@@ -1,5 +1,4 @@
-# backend
-<h2>How to start</h2>
-```
+<h1>How to start</h1>
+`
 py manage.py
-```
+`
