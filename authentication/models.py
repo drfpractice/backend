@@ -4,9 +4,9 @@ import uuid
 
 class Student(models.Model):
     def __str__(self):
-        return self.id
+        return self.name
 
-    id = models.UUIDField(primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     name = models.CharField(max_length=30, blank=True)
     surname = models.CharField(max_length=50, blank=True)
     age = models.IntegerField()
