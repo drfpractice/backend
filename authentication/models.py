@@ -1,5 +1,7 @@
 from django.db import models
 import uuid
+from django.core.validators import RegexValidator, EmailValidator
+from django.core import validators
 
 
 class Student(models.Model):
@@ -22,11 +24,17 @@ class Teacher(models.Model):
     def __str__(self):
         return self.id
 
-    id = models.UUIDField(primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     name = models.CharField(max_length=30, blank=True)
     surname = models.CharField(max_length=50, blank=True)
-    password = models.IntegerField(blank=False)
-    email = models.IntegerField(blank=False)
+    password = models.CharField(blank=False, max_length=128, validators=[
+            RegexValidator(
+                regex='^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
+                message='Password must be at least 8 characters long and contain at least one letter and one number'
+            )
+        ]
+    )
+    email = models.EmailField(blank=False, validators=[validators.EmailValidator(message="Invalid Email")])
 
     class Meta:
         verbose_name = 'teacher'
