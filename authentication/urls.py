@@ -1,5 +1,5 @@
 from django.urls import path
-from authentication.models import Student
+from authentication.models import Student, Teacher
 from ninja import NinjaAPI
 from ninja.schema import Schema
 
@@ -13,9 +13,9 @@ class StudentSchema(Schema):
     age: int
     level: int
 
+
 class StudentSchemaWithId(StudentSchema):
     id: str
-
 
 
 @api.get("/student")
@@ -38,6 +38,48 @@ def create_student(request, payload: StudentSchema):
 def get_student(request, sid: str):
     student = [Student.objects.get(id=sid)]
     return [StudentSchemaWithId.from_orm(i).dict() for i in student][0]
+
+class TeacherSchema(Schema):
+    name: str
+    surname: str
+    password: str
+    email: str
+
+class TeacherSchemaWithId(TeacherSchema):
+    id: str
+
+
+@api.get("/teacher")
+def get_teacher(request):
+    teachers = Teacher.objects.all()
+    content = [TeacherSchemaWithId.from_orm(i).dict() for i in teachers]
+
+    return content
+
+
+@api.post("/teacher")
+def create_teacher(request, payload: TeacherSchema):
+    teacher = Teacher.objects.create(**payload.dict())
+    teacher.save()
+
+    return {"id": teacher.id}
+
+@api.get("/teacher/{sid}")
+def get_teacher(request, sid: str):
+    teacher = [Teacher.objects.get(id=sid)]
+    return [TeacherSchemaWithId.from_orm(i).dict() for i in teacher][0]
+
+@api.put("/teacher")
+def update_teacher(request, sid: str, payload: TeacherSchema):
+    try:
+        teacher = Teacher.objects.get(id=sid)
+    except Teacher.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Преподаватель не найден")
+
+    for attr, value in payload.dict().items():
+        setattr(teacher, attr, value)
+
+    teacher.save()
 
 
 urlpatterns = [
