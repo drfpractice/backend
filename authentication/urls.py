@@ -8,6 +8,14 @@ from ninja import NinjaAPI
 from ninja.schema import Schema
 import datetime
 
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
+
+# from ninja_jwt.controller import NinjaJWTDefaultController
+# from ninja_extra import NinjaExtraAPI
+#
+# api = NinjaExtraAPI()
+# api.register_controllers(NinjaJWTDefaultController)
+
 api = NinjaAPI()
 
 
@@ -137,6 +145,17 @@ def update_teacher(request, sid: str, payload: LessonSchema):
     return response.HttpResponse("200")
 
 
+@api.post("/login")
+def login(request, mail: str, password: str):
+    teacher = Teacher.objects.get(email=mail)
+    print(request.auth)
+    if teacher.password == int(password):
+        return response.HttpResponse("pass correct")
+    elif teacher.password != int(password):
+        return response.HttpResponse("pass incorrect")
+
+
 urlpatterns = [
     path("", api.urls, name="say hello"),
+    path("token", TokenObtainPairView.as_view())
 ]

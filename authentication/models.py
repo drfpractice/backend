@@ -53,7 +53,6 @@ class Lesson(models.Model):
     date = models.DateTimeField(auto_now_add=True, blank=True)
     current_percent = models.IntegerField(default=100)
 
-
     class Meta:
         verbose_name = 'lesson'
         verbose_name_plural = 'lessons'
