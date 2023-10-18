@@ -1,4 +1,8 @@
+from http.client import HTTPException, HTTPResponse
+
+from django.http import response
 from django.urls import path
+
 from authentication.models import Student, Teacher, Lesson
 from ninja import NinjaAPI
 from ninja.schema import Schema
@@ -81,6 +85,7 @@ def update_teacher(request, sid: str, payload: TeacherSchema):
 
     teacher.save()
 
+
 class LessonSchema(Schema):
     teacher_id: str
     student_id: str
@@ -90,14 +95,9 @@ class LessonSchema(Schema):
     current_percent: int
 
 
-class LessonSchemaWithId(Schema):
+class LessonSchemaWithId(LessonSchema):
     id: str
-    teacher_id: str
-    student_id: str
-    duration: int
-    words: str
     date: datetime.datetime
-    current_percent: int
 
 
 @api.get("/lesson")
@@ -115,10 +115,12 @@ def create_lesson(request, payload: LessonSchema):
 
     return {"id": lesson.id}
 
+
 @api.get("/lesson/{sid}")
 def get_teacher(request, sid: str):
     lesson = [Lesson.objects.get(id=sid)]
     return [LessonSchemaWithId.from_orm(i).dict() for i in lesson][0]
+
 
 @api.put("/lesson")
 def update_teacher(request, sid: str, payload: LessonSchema):
@@ -132,6 +134,7 @@ def update_teacher(request, sid: str, payload: LessonSchema):
 
     lesson.save()
 
+    return response.HttpResponse("200")
 
 
 urlpatterns = [
