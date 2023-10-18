@@ -1,8 +1,12 @@
+from http.client import HTTPException, HTTPResponse
+
+from django.http import response
 from django.urls import path
-from authentication.models import Student, Teacher
+
+from authentication.models import Student, Teacher, Lesson
 from ninja import NinjaAPI
 from ninja.schema import Schema
-
+import datetime
 
 api = NinjaAPI()
 
@@ -80,6 +84,57 @@ def update_teacher(request, sid: str, payload: TeacherSchema):
         setattr(teacher, attr, value)
 
     teacher.save()
+
+
+class LessonSchema(Schema):
+    teacher_id: str
+    student_id: str
+    duration: int
+    words: str
+    date: str
+    current_percent: int
+
+
+class LessonSchemaWithId(LessonSchema):
+    id: str
+    date: datetime.datetime
+
+
+@api.get("/lesson")
+def get_lesson(request):
+    lessons = Lesson.objects.all()
+    content = [LessonSchemaWithId.from_orm(i).dict() for i in lessons]
+
+    return content
+
+
+@api.post("/lesson")
+def create_lesson(request, payload: LessonSchema):
+    lesson = Lesson.objects.create(**payload.dict())
+    lesson.save()
+
+    return {"id": lesson.id}
+
+
+@api.get("/lesson/{sid}")
+def get_teacher(request, sid: str):
+    lesson = [Lesson.objects.get(id=sid)]
+    return [LessonSchemaWithId.from_orm(i).dict() for i in lesson][0]
+
+
+@api.put("/lesson")
+def update_teacher(request, sid: str, payload: LessonSchema):
+    try:
+        lesson = Lesson.objects.get(id=sid)
+    except Lesson.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Урок не найден")
+
+    for attr, value in payload.dict().items():
+        setattr(lesson, attr, value)
+
+    lesson.save()
+
+    return response.HttpResponse("200")
 
 
 urlpatterns = [
