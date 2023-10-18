@@ -45,13 +45,14 @@ class Lesson(models.Model):
     def __str__(self):
         return self.id
 
-    id = models.UUIDField(primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    teacher_id = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    student_id = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    teacher_id = models.CharField(max_length=120, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    student_id = models.CharField(max_length=120, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     duration = models.IntegerField(blank=False)
     words = models.JSONField()
-    date = models.DateTimeField(blank=False)
+    date = models.DateTimeField(auto_now_add=True, blank=True)
     current_percent = models.IntegerField(default=100)
+
 
     class Meta:
         verbose_name = 'lesson'
