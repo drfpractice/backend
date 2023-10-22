@@ -7,8 +7,11 @@ from authentication.models import Student, Teacher, Lesson
 from ninja import NinjaAPI
 from ninja.schema import Schema
 import datetime
+import json
 
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # from ninja_jwt.controller import NinjaJWTDefaultController
 # from ninja_extra import NinjaExtraAPI
@@ -148,14 +151,43 @@ def update_teacher(request, sid: str, payload: LessonSchema):
 @api.post("/login")
 def login(request, mail: str, password: str):
     teacher = Teacher.objects.get(email=mail)
-    print(request.auth)
-    if teacher.password == int(password):
+    if teacher.password == password:
         return response.HttpResponse("pass correct")
-    elif teacher.password != int(password):
+        return MyTokenObtainPairSerializer.get_token(teacher)
+
+    elif teacher.password != password:
         return response.HttpResponse("pass incorrect")
+
+
+
+@api.get("tokens")
+def get_tokens_for_user(request, id):
+    refresh = RefreshToken.for_user(id)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Add your extra responses here
+        data['username'] = self.user.username
+        data['groups'] = self.user.groups.values_list('name', flat=True)
+        return data
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
 
 
 urlpatterns = [
     path("", api.urls, name="say hello"),
-    path("token", TokenObtainPairView.as_view())
+    path("token", TokenObtainPairView.as_view()),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
