@@ -24,6 +24,7 @@ class StudentSchema(Schema):
     surname: str
     age: int
     level: int
+    teacher_id_id: str
 
 
 class StudentSchemaWithId(StudentSchema):
@@ -144,15 +145,12 @@ def update_teacher(request, sid: str, payload: LessonSchema):
 
     return response.HttpResponse("200")
 
+@api.get("students/{teacher_id}")
+def getStudent(sss, request):
+    student = Teacher.objects.get(pk=sss)
+    teacher = student.teacher_set.all()
 
-@api.post("/login")
-def login(request, mail: str, password: str):
-    teacher = Teacher.objects.get(email=mail)
-    print(request.auth)
-    if teacher.password == int(password):
-        return response.HttpResponse("pass correct")
-    elif teacher.password != int(password):
-        return response.HttpResponse("pass incorrect")
+    return teacher
 
 
 urlpatterns = [
