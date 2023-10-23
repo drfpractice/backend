@@ -152,8 +152,8 @@ def update_teacher(request, sid: str, payload: LessonSchema):
 def login(request, mail: str, password: str):
     teacher = Teacher.objects.get(email=mail)
     if teacher.password == password:
-        return response.HttpResponse("pass correct")
-        return MyTokenObtainPairSerializer.get_token(teacher)
+        # return response.HttpResponse("pass correct")
+        return response.HttpResponse(MyTokenObtainPairSerializer.get_token(teacher))
 
     elif teacher.password != password:
         return response.HttpResponse("pass incorrect")
@@ -161,7 +161,7 @@ def login(request, mail: str, password: str):
 
 
 @api.get("tokens")
-def get_tokens_for_user(request, id):
+def get_tokens_for_user(request, id: str):
     refresh = RefreshToken.for_user(id)
 
     return {
