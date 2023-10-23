@@ -45,7 +45,6 @@ class Lesson(models.Model):
         return self.id
 
     id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    teacher_id = models.CharField(max_length=120, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     student_id = models.ForeignKey('Student', on_delete=models.PROTECT)
     duration = models.IntegerField(blank=False)
     words = models.JSONField()
