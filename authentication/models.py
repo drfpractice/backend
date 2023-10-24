@@ -42,12 +42,9 @@ class Teacher(models.Model):
 
 
 class Lesson(models.Model):
-    def __str__(self):
-        return self.id
-
     id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    teacher_id = models.CharField(max_length=120, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    student_id = models.CharField(max_length=120, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    teacher_id = models.CharField(max_length=120, editable=False)
+    student_id = models.CharField(max_length=120, editable=False)
     duration = models.IntegerField(blank=False)
     words = models.JSONField()
     date = models.DateTimeField(auto_now_add=True, blank=True)

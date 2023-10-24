@@ -124,7 +124,7 @@ def create_lesson(request, payload: LessonSchema):
     lesson = Lesson.objects.create(**payload.dict())
     lesson.save()
 
-    return {"id": lesson.id}
+    # return {"id": lesson.id}
 
 
 @api.get("/lesson/{sid}")
