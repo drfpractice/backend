@@ -13,11 +13,6 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# from ninja_jwt.controller import NinjaJWTDefaultController
-# from ninja_extra import NinjaExtraAPI
-#
-# api = NinjaExtraAPI()
-# api.register_controllers(NinjaJWTDefaultController)
 
 api = NinjaAPI()
 
@@ -27,6 +22,7 @@ class StudentSchema(Schema):
     surname: str
     age: int
     level: int
+    teacher_id_id: str
 
 
 class StudentSchemaWithId(StudentSchema):
@@ -64,6 +60,7 @@ class TeacherSchemaWithId(TeacherSchema):
     id: str
 
 
+
 @api.get("/teacher")
 def get_teacher(request):
     teachers = Teacher.objects.all()
@@ -98,7 +95,6 @@ def update_teacher(request, sid: str, payload: TeacherSchema):
 
 
 class LessonSchema(Schema):
-    teacher_id: str
     student_id: str
     duration: int
     words: str
@@ -121,10 +117,28 @@ def get_lesson(request):
 
 @api.post("/lesson")
 def create_lesson(request, payload: LessonSchema):
-    lesson = Lesson.objects.create(**payload.dict())
+    # Предположим, что payload содержит teacher_id и student_id, полученные из запроса
+    student_id = payload.student_id
+
+    # Попробуйте получить объект Teacher и Student на основе предоставленных teacher_id и student_id
+    try:
+        student = Student.objects.get(id=student_id)
+    except Teacher.DoesNotExist:
+        return {"error": "Teacher not found"}
+    except Student.DoesNotExist:
+        return {"error": "Student not found"}
+
+    # Создайте объект Lesson с присвоением teacher и student
+    lesson = Lesson(
+        student_id=student,
+        duration=payload.duration,
+        words=payload.words,
+        current_percent=payload.current_percent
+    )
     lesson.save()
 
     # return {"id": lesson.id}
+
 
 
 @api.get("/lesson/{sid}")
@@ -147,6 +161,43 @@ def update_teacher(request, sid: str, payload: LessonSchema):
 
     return response.HttpResponse("200")
 
+
+
+class LessonSchemaWithId1(Schema):
+        id: str
+        duration: int
+        words: str
+        date: datetime.datetime
+        current_percent: int
+
+
+
+@api.get("/teacher/{tid}/students-with-lessons")
+def get_students_with_lessons(request, tid: str):
+    try:
+        # Попробуйте найти учителя по ID
+        teacher = Teacher.objects.get(id=tid)
+    except Teacher.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Учитель не найден")
+
+    # Теперь найдите всех студентов, связанных с этим учителем
+    students = Student.objects.filter(teacher_id_id=tid)
+
+    teacher_data = TeacherSchemaWithId.from_orm(teacher).dict()
+
+    students_with_lessons = []
+
+    for student in students:
+        student_data = StudentSchemaWithId.from_orm(student).dict()
+        lessons = Lesson.objects.filter(student_id=student.id)
+        lesson_data = [LessonSchemaWithId1.from_orm(lesson).dict() for lesson in lessons]
+        student_data["lessons"] = lesson_data
+        students_with_lessons.append(student_data)
+
+    return {
+        "teacher": teacher_data,
+        "students_with_lessons": students_with_lessons
+    }
 
 @api.post("/login")
 def login(request, mail: str, password: str):
@@ -187,7 +238,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 urlpatterns = [
     path("", api.urls, name="say hello"),
-    path("token", TokenObtainPairView.as_view()),
+    path("token", TokenObtainPairView.as_view(),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+)
 ]

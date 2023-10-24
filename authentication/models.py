@@ -13,8 +13,7 @@ class Student(models.Model):
     surname = models.CharField(max_length=50, blank=True)
     age = models.IntegerField()
     level = models.IntegerField(default=0)
-    teacher_id = models.CharField(max_length=120, blank=False)
-
+    teacher_id = models.ForeignKey('Teacher', on_delete=models.PROTECT)
     class Meta:
         verbose_name = 'student'
         verbose_name_plural = 'students'
@@ -43,8 +42,8 @@ class Teacher(models.Model):
 
 class Lesson(models.Model):
     id = models.CharField(max_length=120, primary_key=True, unique=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    teacher_id = models.CharField(max_length=120, editable=False)
-    student_id = models.CharField(max_length=120, editable=False)
+    student_id = models.ForeignKey('Student', on_delete=models.PROTECT)
+    teacher_id = models.ForeignKey('Teacher', on_delete=models.PROTECT)
     duration = models.IntegerField(blank=False)
     words = models.JSONField()
     date = models.DateTimeField(auto_now_add=True, blank=True)
