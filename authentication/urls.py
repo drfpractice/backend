@@ -7,8 +7,11 @@ from authentication.models import Student, Teacher, Lesson
 from ninja import NinjaAPI
 from ninja.schema import Schema
 import datetime
+import json
 
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 api = NinjaAPI()
@@ -134,7 +137,7 @@ def create_lesson(request, payload: LessonSchema):
     )
     lesson.save()
 
-    return {"id": lesson.id}
+    # return {"id": lesson.id}
 
 
 
@@ -157,6 +160,7 @@ def update_teacher(request, sid: str, payload: LessonSchema):
     lesson.save()
 
     return response.HttpResponse("200")
+
 
 
 class LessonSchemaWithId1(Schema):
@@ -195,6 +199,42 @@ def get_students_with_lessons(request, tid: str):
         "students_with_lessons": students_with_lessons
     }
 
+@api.post("/login")
+def login(request, mail: str, password: str):
+    teacher = Teacher.objects.get(email=mail)
+    if teacher.password == password:
+        # return response.HttpResponse("pass correct")
+        return response.HttpResponse(MyTokenObtainPairSerializer.get_token(teacher))
+
+    elif teacher.password != password:
+        return response.HttpResponse("pass incorrect")
+
+
+
+@api.get("tokens")
+def get_tokens_for_user(request, id: str):
+    refresh = RefreshToken.for_user(id)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Add your extra responses here
+        data['username'] = self.user.username
+        data['groups'] = self.user.groups.values_list('name', flat=True)
+        return data
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
 
 urlpatterns = [
     path("", api.urls, name="say hello"),
@@ -203,4 +243,3 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 )
 ]
-
