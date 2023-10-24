@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'ninja_jwt',
-    'authentication'
+    'authentication',
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
@@ -91,17 +92,21 @@ DATABASES = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
+    # {
+    #     'NAME': 'django.contrib.authentication.password_validation.UserAttributeSimilarityValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.authentication.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.authentication.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.authentication.password_validation.NumericPasswordValidator',
+    # },
     {
-        'NAME': 'django.contrib.authentication.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.authentication.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.authentication.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.authentication.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.' +
+        'UserAttributeSimilarityValidator',
     },
 ]
 
