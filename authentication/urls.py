@@ -238,8 +238,5 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 urlpatterns = [
     path("", api.urls, name="say hello"),
-    path("token", TokenObtainPairView.as_view(),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-)
+    path("token", TokenObtainPairView.as_view())
 ]
