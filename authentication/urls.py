@@ -203,9 +203,7 @@ def get_students_with_lessons(request, tid: str):
 def login(request, mail: str, password: str):
     teacher = Teacher.objects.get(email=mail)
     if teacher.password == password:
-        # return response.HttpResponse("pass correct")
-        return response.HttpResponse(MyTokenObtainPairSerializer.get_token(teacher))
-
+        return teacher.id
     elif teacher.password != password:
         return response.HttpResponse("pass incorrect")
 
@@ -233,7 +231,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
-
 
 
 urlpatterns = [
