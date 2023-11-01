@@ -12,6 +12,7 @@ import json
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+import bcrypt
 
 
 api = NinjaAPI()
@@ -71,7 +72,13 @@ def get_teacher(request):
 
 @api.post("/teacher")
 def create_teacher(request, payload: TeacherSchema):
-    teacher = Teacher.objects.create(**payload.dict())
+    hashed_password = bcrypt.hashpw(payload.password.encode('utf-8'), bcrypt.gensalt(5))
+    teacher = Teacher.objects.create(
+        name=payload.name,
+        surname=payload.surname,
+        email=payload.email,
+        password=hashed_password.decode('utf-8')  # Store the hashed password as a string
+    )
     teacher.save()
 
     return {"id": teacher.id}
@@ -201,14 +208,21 @@ def get_students_with_lessons(request, tid: str):
 
 @api.post("/login")
 def login(request, mail: str, password: str):
-    teacher = Teacher.objects.get(email=mail)
-    if teacher.password == password:
-        # return response.HttpResponse("pass correct")
-        return response.HttpResponse(MyTokenObtainPairSerializer.get_token(teacher))
+    try:
+        teacher = Teacher.objects.get(email=mail)
+    except Teacher.DoesNotExist:
+        return response.HttpResponse("User not found")
 
-    elif teacher.password != password:
-        return response.HttpResponse("pass incorrect")
+        # Verify the hashed password
+    if bcrypt.checkpw(password.encode('utf-8'), teacher.password.encode('utf-8')):
+            # Password is correct
+            # Create a token for the user here if you have a token-based authentication system
+            # Return appropriate response
+        return {"id": teacher.id}
 
+    else:
+            # Password is incorrect
+        return response.HttpResponse("Login failed")
 
 
 @api.get("tokens")
@@ -221,25 +235,8 @@ def get_tokens_for_user(request, id: str):
     }
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-
-        # Add your extra responses here
-        data['username'] = self.user.username
-        data['groups'] = self.user.groups.values_list('name', flat=True)
-        return data
-
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-
 
 
 urlpatterns = [
-    path("", api.urls, name="say hello"),
-    path("token", TokenObtainPairView.as_view(),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-)
+    path("", api.urls, name="say hello")
 ]
