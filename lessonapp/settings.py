@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-7@ra^mwagy73#$hoofvw8u@_mcv+=12wqt-c6jyyreou39d=ft
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "94.26.225.232"
+]
 
 
 # Application definition
@@ -40,12 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'ninja_jwt',
     'authentication',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +57,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4000",
+    "http://127.0.0.1:4000",
+    "http://127.0.0.1:3010",
+]
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'lessonapp.urls'
 

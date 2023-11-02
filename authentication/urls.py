@@ -219,7 +219,11 @@ def login(request, mail: str, password: str):
             # Create a token for the user here if you have a token-based authentication system
             # Return appropriate response
         return {"id": teacher.id}
-
+    teacher = Teacher.objects.get(email=mail)
+    if teacher.password == password:
+        return {"id": teacher.id}
+    elif teacher.password != password:
+        return response.HttpResponse("pass incorrect")
     else:
             # Password is incorrect
         return response.HttpResponse("Login failed")
@@ -236,7 +240,8 @@ def get_tokens_for_user(request, id: str):
 
 
 
-
 urlpatterns = [
-    path("", api.urls, name="say hello")
+    path("", api.urls, name="say hello"),
+    path("", api.urls, name="say hello"),
+    path("token", TokenObtainPairView.as_view())
 ]
