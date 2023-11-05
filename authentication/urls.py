@@ -213,35 +213,12 @@ def login(request, mail: str, password: str):
     except Teacher.DoesNotExist:
         return response.HttpResponse("User not found")
 
-        # Verify the hashed password
     if bcrypt.checkpw(password.encode('utf-8'), teacher.password.encode('utf-8')):
-            # Password is correct
-            # Create a token for the user here if you have a token-based authentication system
-            # Return appropriate response
         return {"id": teacher.id}
-    teacher = Teacher.objects.get(email=mail)
-    if teacher.password == password:
-        return {"id": teacher.id}
-    elif teacher.password != password:
-        return response.HttpResponse("pass incorrect")
     else:
-            # Password is incorrect
         return response.HttpResponse("Login failed")
 
 
-@api.get("tokens")
-def get_tokens_for_user(request, id: str):
-    refresh = RefreshToken.for_user(id)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
-
 urlpatterns = [
-    path("", api.urls, name="say hello"),
-    path("", api.urls, name="say hello"),
-    path("token", TokenObtainPairView.as_view())
+    path("", api.urls, name="say hello")
 ]
