@@ -1,6 +1,7 @@
 import bcrypt
 from authentication.models import Teacher
 
+
 def SimpleMiddleware(get_response):
     # One-time configuration and initialization.
 

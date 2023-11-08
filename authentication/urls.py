@@ -8,10 +8,6 @@ from ninja import NinjaAPI
 from ninja.schema import Schema
 import datetime
 import json
-
-from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView, TokenVerifyView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 import bcrypt
 
 
@@ -205,6 +201,7 @@ def get_students_with_lessons(request, tid: str):
         "teacher": teacher_data,
         "students_with_lessons": students_with_lessons
     }
+
 
 @api.post("/login")
 def login(request, mail: str, password: str):

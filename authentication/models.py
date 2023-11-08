@@ -33,7 +33,7 @@ class Teacher(models.Model):
             )
         ]
     )
-    email = models.EmailField(blank=False, validators=[validators.EmailValidator(message="Invalid Email")])
+    email = models.EmailField(blank=False, unique=True, validators=[validators.EmailValidator(message="Invalid Email")])
 
     class Meta:
         verbose_name = 'teacher'
